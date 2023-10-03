@@ -1,9 +1,11 @@
+import numpy as np
 import supervisely as sly
+import cv2
 import os
 from dataset_tools.convert import unpack_if_archive
 import src.settings as s
 from urllib.parse import unquote, urlparse
-from supervisely.io.fs import get_file_name, get_file_size
+from supervisely.io.fs import get_file_name, get_file_name_with_ext
 import shutil
 
 from tqdm import tqdm
@@ -70,16 +72,57 @@ def convert_and_upload_supervisely_project(
     api: sly.Api, workspace_id: int, project_name: str
 ) -> sly.ProjectInfo:
     ### Function should read local dataset and upload it to Supervisely project, then return project info.###
-    raise NotImplementedError("The converter should be implemented manually.")
-
-    # dataset_path = "/local/path/to/your/dataset" # general way
-    # dataset_path = download_dataset(teamfiles_dir) # for large datasets stored on instance
-
-    # ... some code here ...
-
-    # sly.logger.info('Deleting temporary app storage files...')
-    # shutil.rmtree(storage_dir)
-
-    # return project
+    images_path = os.path.join("EMPS","images")
+    masks_path = os.path.join("EMPS","segmaps")
+    ds_name = "ds"
+    batch_size = 30
 
 
+    def create_ann(image_path):
+        labels = []
+
+        image_name = get_file_name_with_ext(image_path)
+
+        mask_path = os.path.join(masks_path, image_name)
+        mask_np = cv2.imread(mask_path, -1)
+        img_height = mask_np.shape[0]
+        img_wight = mask_np.shape[1]
+        unique_pixels = np.unique(mask_np)
+        for pixel in unique_pixels[1:]:
+            mask = mask_np == pixel
+            ret, curr_mask = cv2.connectedComponents(mask.astype("uint8"), connectivity=8)
+            for i in range(1, ret):
+                obj_mask = curr_mask == i
+                curr_bitmap = sly.Bitmap(obj_mask)
+                if curr_bitmap.area > 2:
+                    curr_label = sly.Label(curr_bitmap, obj_class)
+                    labels.append(curr_label)
+
+        return sly.Annotation(img_size=(img_height, img_wight), labels=labels)
+
+
+    obj_class = sly.ObjClass("particle", sly.Bitmap)
+
+    project = api.project.create(workspace_id, project_name, change_name_if_conflict=True)
+    meta = sly.ProjectMeta(obj_classes=[obj_class])
+    api.project.update_meta(project.id, meta.to_json())
+
+
+    dataset = api.dataset.create(project.id, ds_name, change_name_if_conflict=True)
+
+    images_names = os.listdir(images_path)
+
+    progress = sly.Progress("Create dataset {}".format(ds_name), len(images_names))
+
+    for img_names_batch in sly.batched(images_names, batch_size=batch_size):
+        images_pathes_batch = [os.path.join(images_path, image_name) for image_name in img_names_batch]
+
+        img_infos = api.image.upload_paths(dataset.id, img_names_batch, images_pathes_batch)
+        img_ids = [im_info.id for im_info in img_infos]
+
+        anns_batch = [create_ann(image_path) for image_path in images_pathes_batch]
+        api.annotation.upload_anns(img_ids, anns_batch)
+
+        progress.iters_done_report(len(img_names_batch))
+
+    return project
