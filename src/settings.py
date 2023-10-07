@@ -53,7 +53,7 @@ CLASS2COLOR: Optional[Dict[str, List[str]]] = None
 # Use dict key to specify name for a button
 PAPER: Optional[Union[str, List[str], Dict[str, str]]] = ["https://pubs.acs.org/doi/10.1021/acs.jcim.0c01455"]
 BLOGPOST: Optional[Union[str, List[str], Dict[str, str]]] = None
-REPOSITORY: Optional[Union[str, List[str], Dict[str, str]]] = None
+REPOSITORY: Optional[Union[str, List[str], Dict[str, str]]] = {"GitHub Page":"https://github.com/by256/emps", }
 
 CITATION_URL: Optional[str] = ["https://pubs.acs.org/doi/10.1021/acs.jcim.0c01455"]
 AUTHORS: Optional[List[str]] = ["Batuhan Yildirim", "Jacqueline M. Cole"]
@@ -62,7 +62,7 @@ ORGANIZATION_NAME: Optional[Union[str, List[str]]] = ["University of Cambridge"]
 ORGANIZATION_URL: Optional[Union[str, List[str]]] = ["https://www.cam.ac.uk/"]
 
 # Set '__PRETEXT__' or '__POSTTEXT__' as a key with string value to add custom text. e.g. SLYTAGSPLIT = {'__POSTTEXT__':'some text}
-SLYTAGSPLIT: Optional[Dict[str, Union[List[str], str]]] = None
+SLYTAGSPLIT: Optional[Dict[str, Union[List[str], str]]] = {"__POSTTEXT__":"Also, the dataset contains ***doi*** tag"}
 TAGS: Optional[List[str]] = None
 
 
