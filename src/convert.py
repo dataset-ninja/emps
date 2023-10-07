@@ -1,14 +1,18 @@
+import csv
+import os
+import shutil
+from collections import defaultdict
+from urllib.parse import unquote, urlparse
+
+import cv2
 import numpy as np
 import supervisely as sly
-import cv2
-import os
 from dataset_tools.convert import unpack_if_archive
-import src.settings as s
-from urllib.parse import unquote, urlparse
 from supervisely.io.fs import get_file_name, get_file_name_with_ext
-import shutil
-
 from tqdm import tqdm
+
+import src.settings as s
+
 
 def download_dataset(teamfiles_dir: str) -> str:
     """Use it for large datasets to convert them on the instance"""
@@ -75,14 +79,28 @@ def convert_and_upload_supervisely_project(
     images_path = os.path.join("EMPS","images")
     masks_path = os.path.join("EMPS","segmaps")
     ds_name = "ds"
-    batch_size = 30
+    batch_size = 10
+    metadata_file = os.path.join("EMPS","metadata.csv")
+    tag_dict = defaultdict()
 
+    with open(metadata_file, "r") as file:
+        csvreader = csv.reader(file)
+        for idx, row in enumerate(csvreader):
+            if idx != 0:
+                tag_dict[row[0]] = row[1]
 
+    errors = []
     def create_ann(image_path):
         labels = []
+        tags = []
 
         image_name = get_file_name_with_ext(image_path)
-
+        try:
+            tag = sly.Tag(meta=tag_doi, value = tag_dict[image_name])
+            tags.append(tag)
+        except Exception:
+            errors.append(image_name)
+            pass
         mask_path = os.path.join(masks_path, image_name)
         mask_np = cv2.imread(mask_path, -1)
         img_height = mask_np.shape[0]
@@ -98,13 +116,14 @@ def convert_and_upload_supervisely_project(
                     curr_label = sly.Label(curr_bitmap, obj_class)
                     labels.append(curr_label)
 
-        return sly.Annotation(img_size=(img_height, img_wight), labels=labels)
+        return sly.Annotation(img_size=(img_height, img_wight), labels=labels, img_tags=tags)
 
 
     obj_class = sly.ObjClass("particle", sly.Bitmap)
+    tag_doi = sly.TagMeta('doi', sly.TagValueType.ANY_STRING)
 
     project = api.project.create(workspace_id, project_name, change_name_if_conflict=True)
-    meta = sly.ProjectMeta(obj_classes=[obj_class])
+    meta = sly.ProjectMeta(obj_classes=[obj_class], tag_metas=[tag_doi])
     api.project.update_meta(project.id, meta.to_json())
 
 
@@ -124,5 +143,6 @@ def convert_and_upload_supervisely_project(
         api.annotation.upload_anns(img_ids, anns_batch)
 
         progress.iters_done_report(len(img_names_batch))
-
+    
+    print(errors)
     return project
