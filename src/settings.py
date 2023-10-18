@@ -20,7 +20,7 @@ HIDE_DATASET = False  # set False when 100% sure about repo quality
 ##################################
 # * After uploading to instance ##
 ##################################
-LICENSE: License = License.CC_BY_4_0()
+LICENSE: License = License.CC_BY_4_0(source_url="https://pubs.acs.org/doi/10.1021/acs.jcim.0c01455")
 APPLICATIONS: List[Union[Industry, Domain, Research]] = [Research.Materials()]
 CATEGORY: Category = Category.General()
 
@@ -53,7 +53,7 @@ CLASS2COLOR: Optional[Dict[str, List[str]]] = None
 # Use dict key to specify name for a button
 PAPER: Optional[Union[str, List[str], Dict[str, str]]] = ["https://pubs.acs.org/doi/10.1021/acs.jcim.0c01455"]
 BLOGPOST: Optional[Union[str, List[str], Dict[str, str]]] = None
-REPOSITORY: Optional[Union[str, List[str], Dict[str, str]]] = {"GitHub Page":"https://github.com/by256/emps", }
+REPOSITORY: Optional[Union[str, List[str], Dict[str, str]]] = {"GitHub":"https://github.com/by256/emps" }
 
 CITATION_URL: Optional[str] = ["https://pubs.acs.org/doi/10.1021/acs.jcim.0c01455"]
 AUTHORS: Optional[List[str]] = ["Batuhan Yildirim", "Jacqueline M. Cole"]
