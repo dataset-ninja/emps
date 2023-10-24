@@ -22,7 +22,7 @@ HIDE_DATASET = False  # set False when 100% sure about repo quality
 ##################################
 LICENSE: License = License.CC_BY_4_0(source_url="https://pubs.acs.org/doi/10.1021/acs.jcim.0c01455")
 APPLICATIONS: List[Union[Industry, Domain, Research]] = [Research.Materials()]
-CATEGORY: Category = Category.General()
+CATEGORY: Category = Category.Science()
 
 CV_TASKS: List[CVTask] = [CVTask.InstanceSegmentation(), CVTask.SemanticSegmentation(), CVTask.ObjectDetection()]
 ANNOTATION_TYPES: List[AnnotationType] = [AnnotationType.InstanceSegmentation()]
