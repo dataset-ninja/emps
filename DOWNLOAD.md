@@ -1,6 +1,6 @@
 Dataset **EMPS** can be downloaded in [Supervisely format](https://developer.supervisely.com/api-references/supervisely-annotation-json-format):
 
- [Download](https://assets.supervisely.com/supervisely-supervisely-assets-public/teams_storage/9/9/GM/B9JURbsqv1dYvFL2kGjetiorEty8xLmwbFhOSf26ovWkZfhcrD7XH4bJoAHpBsvwjSOt5DQkPv2bk3lxbOXbu9c6UC4MFuAPXwA5IfaiUQlKjBVG9cxWGXZvqHSs.tar)
+ [Download](https://www.dropbox.com/scl/fi/9lovq6hcj12slys1z5gy1/emps-DatasetNinja.tar?rlkey=z1ggbr0pmr54oelmjubfslbi7&dl=1)
 
 As an alternative, it can be downloaded with *dataset-tools* package:
 ``` bash
